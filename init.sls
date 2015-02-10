@@ -16,7 +16,7 @@ strongswan-pkgs:
 ##Configuring ipsec.conf
 /etc/ipsec.conf:
     file.managed:
-        - source: {{ salt://rpc-salt-vpn/config/ipsec.conf }}
+        - source: salt://rpc-salt-vpn/config/ipsec.conf 
         - group: root
         - mode: 644
         - template: jinja
@@ -26,7 +26,7 @@ strongswan-pkgs:
 ##Configuring strongswan.conf
 /etc/strongswan.conf:
     file.managed:
-        - source: {{ salt:://rpc-salt-vpn/config/strongswan.conf }}
+        - source: salt:://rpc-salt-vpn/config/strongswan.conf 
         - group: root
         - mode: 644
         - template: jinja
@@ -36,7 +36,7 @@ strongswan-pkgs:
 ##Configuring ipsec.secrets
 /etc/ipsec.secrets:
     file.managed:
-        - source: {{ salt::/rpc-salt-vpn/config/ipsec.secrets
+        - source: salt::/rpc-salt-vpn/config/ipsec.secrets
         - group: root
         - mode: 644
         - template: jinja
