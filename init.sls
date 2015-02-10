@@ -41,4 +41,10 @@ strongswan-pkgs:
         - mode: 644
         - template: jinja
         - require:
-            - pkg: strongswan-pkgs 
+            - pkg: strongswan-pkgs
+
+strongswan:
+    service.running:
+        - reload: True
+
+
