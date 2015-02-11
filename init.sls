@@ -43,8 +43,14 @@ strongswan-pkgs:
         - require:
             - pkg: strongswan-pkgs
 
+strongswan-stop:
+    service:
+        - name: strongwan
+        - dead
+
 strongswan:
     service.running:
+        - enable: True
         - reload: True
 
 
