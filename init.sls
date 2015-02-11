@@ -45,7 +45,7 @@ strongswan-pkgs:
 
 strongswan-stop:
     service:
-        - name: strongwan
+        - name: strongswan
         - dead
 
 strongswan:
