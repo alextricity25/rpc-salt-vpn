@@ -28,6 +28,8 @@ strongswan-pkgs:
             - libpam0g-dev
             - libcap-dev
             - libgmp-dev
+        - require:
+            - pkg: curl
 
 ##Getting strongswan 5.2.2 from source
 install-strongswan-5.2.2:
@@ -100,7 +102,7 @@ restart-ipsec:
         - require:
             - file: /etc/strongswan.conf
             - file: /etc/ipsec.secrets
-            - file: /etc/ipsec.fon
+            - file: /etc/ipsec.conf
 
 
 
