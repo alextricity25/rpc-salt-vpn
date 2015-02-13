@@ -13,7 +13,7 @@ strongswan-pkgs:
     pkg.installed:
         - names:
             - build-essential
-            - libcurl4-openssl
+            - libcurl4-openssl-dev
             - libldap2-dev
             - libsoup2.4-dev
             - libtspi-dev
