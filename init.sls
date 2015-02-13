@@ -94,14 +94,13 @@ install-strongswan-5.2.2:
         - require:
             - pkg: strongswan-pkgs
 
-ipsec-stop:
-    service:
-        - name: ipsec
-        - dead
+restart-ipsec:
+    cmd.run:
+        - name: ipsec restart
+        - require:
+            - file: /etc/strongswan.conf
+            - file: /etc/ipsec.secrets
+            - file: /etc/ipsec.fon
 
-ipsec:
-    service.running:
-        - enable: True
-        - reload: True
 
 
