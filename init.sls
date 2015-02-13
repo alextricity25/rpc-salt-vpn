@@ -22,8 +22,8 @@ strongswan-pkgs:
             - libsqlite3-dev
             - libpcsclite-dev
             - libnm-util-dev
-            - libnm-gilib-dev
-            - libnm-gilib-vpn-dev
+            - libnm-glib-dev
+            - libnm-glib-vpn-dev
             - network-manager-dev
             - libpam0g-dev
             - libcap-dev
@@ -61,6 +61,8 @@ install-strongswan-5.2.2:
         - shell: /bin/bash
         - timeout: 400
         - unless: test -x /usr/local/bin/ipsec
+        - require:
+            - pkg: strongswan-pkgs
 
 ##Configuring ipsec.conf
 /etc/ipsec.conf:
