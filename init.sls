@@ -3,6 +3,11 @@ net.ipv4.ip_forward:
     sysctl.present:
         - value: 1
 
+##Do update then install curl
+curl:
+    pkg.installed:
+        - refresh: True
+
 ##Install packages to build strongswan 5.2.2 from source
 strongswan-pkgs:
     pkg.installed:
@@ -23,7 +28,6 @@ strongswan-pkgs:
             - libpam0g-dev
             - libcap-dev
             - libgmp-dev
-        - refresh: True
 
 ##Getting strongswan 5.2.2 from source
 install-strongswan-5.2.2:
