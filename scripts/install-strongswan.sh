@@ -28,4 +28,5 @@ cd strongswan-5.2.2
 --enable-vici --enable-swanctl --enable-ext-auth --enable-xauth-noauth
 make
 make install
+touch /tmp/install-strongswan.ran
 exit 0
