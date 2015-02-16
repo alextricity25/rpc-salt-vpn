@@ -31,41 +31,24 @@ strongswan-pkgs:
         - require:
             - pkg: curl
 
+/tmp/install-strongswan.sh:
+    file.managed:
+        - source: salt://scripts/install-strongswan.sh
+        - group root
+        - mode: 740
+        - template: jinja
+
 ##Getting strongswan 5.2.2 from source
-install-strongswan-5.2.2:
+/tmp/install-strongswan.sh:
     cmd.run:
-        - name: | 
-            cd /tmp
-            wget http://download.strongswan.org/strongswan-5.2.2.tar.gz
-            tar xzf strongswan-5.2.2.tar.gz
-            cd strongswan-5.2.2
-            ./configure --prefix=/usr \
-            --sbindir=/usr/bin \
-            --sysconfdir=/etc \
-            --libexecdir=/usr/lib \
-            --with-ipsecdir=/usr/lib/strongswan \
-            --enable-sqlite \
-            --enable-openssl --enable-curl \
-            --enable-sql --enable-attr-sql \
-            --enable-farp --enable-dhcp \
-            --enable-eap-sim --enable-eap-sim-file --enable-eap-simaka-pseudonym \
-            --enable-eap-simaka-reauth --enable-eap-identity --enable-eap-md5 \
-            --enable-eap-gtc --enable-eap-aka --enable-eap-aka-3gpp2 \
-            --enable-eap-mschapv2 --enable-eap-radius --enable-xauth-eap \
-            --enable-ha --enable-gcm --enable-ccm --enable-ctr --enable-unity \
-            --enable-integrity-test --enable-load-tester --enable-test-vectors \
-            --enable-af-alg --disable-ldap \
-            --with-capabilities=libcap --enable-cmd --enable-ntru \
-            --enable-vici --enable-swanctl --enable-ext-auth --enable-xauth-noauth
-            make
-            make install
-            exit 0
         - cwd: /tmp
         - shell: /bin/bash
         - timeout: 400
         - unless: test -x /usr/local/bin/ipsec
+        - creates: /tmp/install-strongswan.ran
         - require:
             - pkg: strongswan-pkgs
+            - file: /tmp/install-strongswan.sh
 
 ##Configuring ipsec.conf
 /etc/ipsec.conf:
