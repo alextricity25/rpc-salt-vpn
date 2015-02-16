@@ -1,3 +1,9 @@
+set -ex
+logdir=/var/log/salt-scripts
+prefix=${logdir}/install-strongswan
+mkdir -p $logdir
+exec &> >(tee -a ${prefix}.log)
+
 cd /tmp
 wget http://download.strongswan.org/strongswan-5.2.2.tar.gz
 tar xzf strongswan-5.2.2.tar.gz

@@ -31,10 +31,11 @@ strongswan-pkgs:
         - require:
             - pkg: curl
 
-/tmp/install-strongswan.sh:
+drop_install_file:
     file.managed:
-        - source: salt://scripts/install-strongswan.sh
-        - group root
+        - name: /tmp/install-strongswan.sh
+        - source: salt://rpc-salt-vpn/scripts/install-strongswan.sh
+        - group: root
         - mode: 740
         - template: jinja
 
