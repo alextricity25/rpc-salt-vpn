@@ -59,6 +59,7 @@ install-strongswan-5.2.2:
             --enable-vici --enable-swanctl --enable-ext-auth --enable-xauth-noauth
             make
             make install
+            exit 0
         - cwd: /tmp
         - shell: /bin/bash
         - timeout: 400
