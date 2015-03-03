@@ -1,3 +1,6 @@
+##Setting Jijna variables
+{%- set ipsec_running = salt[cmd.retcode]('ipsec status') -%}
+
 ##Enable IPv4 forwarding
 net.ipv4.ip_forward:
     sysctl.present:
@@ -45,7 +48,7 @@ drop_install_file:
         - cwd: /tmp
         - shell: /bin/bash
         - timeout: 400
-        - unless: test -x /usr/local/bin/ipsec
+        - unless: test -x /usr/bin/ipsec
         - creates: /tmp/install-strongswan.ran
         - require:
             - pkg: strongswan-pkgs
@@ -83,7 +86,11 @@ drop_install_file:
 
 restart-ipsec:
     cmd.run:
+        {% if ipsec_running == 0 %}
+        - name: ipsec reload && ipsec rereadsecrets
+        {% else %}
         - name: ipsec restart
+        {% endif %}
         - require:
             - file: /etc/strongswan.conf
             - file: /etc/ipsec.secrets
