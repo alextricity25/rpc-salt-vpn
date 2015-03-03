@@ -1,5 +1,5 @@
 ##Setting Jijna variables
-{%- set ipsec_running = salt[cmd.retcode]('ipsec status') -%}
+{%- set ipsec_running = salt['cmd.retcode']('ipsec status') -%}
 
 ##Enable IPv4 forwarding
 net.ipv4.ip_forward:
