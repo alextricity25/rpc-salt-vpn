@@ -42,7 +42,7 @@ def delete_users(user_list, pillar_file_dict):
 	users = pillar_file_dict['ipsecconf']['users']
 	print users
 	for user in user_list:
-		logging.info("Deleting %s user" + user)
+		logging.info("Deleting user " + user)
 		del pillar_file_dict['ipsecconf']['users'][user]
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
@@ -54,7 +54,7 @@ def add_users(user_list, pillar_file_dict):
 	print "You are about to add: ",user_list
 	#Do things here to pillar_file_dict to add users
 	for user in user_list:
-		logging.info("Adding %s user" + user)
+		logging.info("Adding user " + user)
 		pillar_file_dict['ipsecconf']['users'][user] = password_gen()
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
@@ -82,7 +82,7 @@ def create_pillar(user_list, networks_list):
 	print "You are about to create the pillar file"
 	pillar_file_dict = {
 		'ipsecconf': {
-			'dhcp_pool_cider': DHCP_POOL_CIDER,
+			'dhcp_pool_cidr': DHCP_POOL_CIDER,
 			'private_key': PRIVATE_KEY,
 			'group_name': GROUP_NAME,
 			'left_networks': ','.join(networks_list),
@@ -90,8 +90,11 @@ def create_pillar(user_list, networks_list):
 		}
 	}
 	for user in user_list:
-		logging.info("Adding %s user" + user)
-		pillar_file_dict['ipsecconf']['users'][user] = password_gen()
+		logging.info("Adding user " + user)
+		password = password_gen()
+		pillar_file_dict['ipsecconf']['users'][user] = password
+		write open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
+			outfile.write("{%(user)s: %(password)s" % {'user': user, 'password', password})
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write(yaml.dump(pillar_file_dict, default_flow_style=False))
 
