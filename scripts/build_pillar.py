@@ -60,6 +60,9 @@ def add_users(user_list, pillar_file_dict):
 	for user in user_list:
 		logging.info("Adding user " + user)
 		pillar_file_dict['ipsecconf']['users'][user] = password_gen()
+		#Writing to heat output file
+		with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+			outfile.write("{%(user)s: %(password)s}" % {'user':user,'password',password})
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
@@ -115,10 +118,15 @@ def create_pillar(user_list, networks_list):
 		logging.info("Adding user " + user)
 		password = password_gen()
 		pillar_file_dict['ipsecconf']['users'][user] = password
-		with open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
-			outfile.write("{%(user)s: %(password)s" % {'user': user, 'password': password})
+		with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+			outfile.write("{%(user)s: %(password)s}" % {'user': user, 'password': password})
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write(yaml.dump(pillar_file_dict, default_flow_style=False))
+
+def clear_passwords():
+	with open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
+		outfile.write("")
+		exit(0)
 
 def load_pillar():
 	if os.path.isfile(PILLAR_FILE_PATH):
@@ -165,6 +173,12 @@ def main():
 	else:
 		is_updatepw = False
 
+	##Used to determine if user is clearing passwords from stack output
+	if "clear passwords" in list_of_users_list[0]:
+		is_clear = True
+	else:
+		is_clear = False
+
 
 
 	#---Logic to carry out the functions specified by the user
@@ -175,6 +189,10 @@ def main():
 	##Build the pillar file on stack creation
 	if DEPLOY_ACTION == 'CREATE' and not is_delete_users and not is_delete_networks:
 		create_pillar(list_of_users_list, left_networks_list)
+
+	##Clear users and passwords from output if user specifies
+	if is_clear:
+		clear_passwords()
 
 	##Delete user or network when specified
 	if is_delete_users:
