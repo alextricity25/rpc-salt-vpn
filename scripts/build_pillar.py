@@ -21,7 +21,7 @@ if len(sys.argv) != 11:
 #Constant variables
 SCRIPT_NAME = sys.argv[0]
 LEFT_NETWORKS = sys.argv[1]
-DHCP_POOL_CIDER = sys.argv[2]
+DHCP_POOL_CIDR = sys.argv[2]
 GROUP_NAME = sys.argv[3]
 PRIVATE_KEY = sys.argv[4]
 LIST_OF_USERS = sys.argv[5]
@@ -38,12 +38,13 @@ PILLAR_FILE_PATH = sys.argv[10]
 #prefix when entering the user list on a stack update
 def delete_users(user_list, pillar_file_dict):
 	print "You are about to delete: ",user_list
-	print pillar_file_dict
-	users = pillar_file_dict['ipsecconf']['users']
-	print users
 	for user in user_list:
-		logging.info("Deleting user " + user)
-		del pillar_file_dict['ipsecconf']['users'][user]
+		try:
+			logging.info("Deleting user " + user)
+			del pillar_file_dict['ipsecconf']['users'][user]
+		except KeyError:
+			logging.warning("Cloud not find %s in the pillar file" % user)
+			print "Cloud not find %s in the pillar file" % user
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
@@ -51,6 +52,9 @@ def delete_users(user_list, pillar_file_dict):
 #This method is called if the user specifies a list
 #of users on a stack update.
 def add_users(user_list, pillar_file_dict):
+	if '' in user_list:
+		logging.info("User list is empty..leaving it alone")
+		return
 	print "You are about to add: ",user_list
 	#Do things here to pillar_file_dict to add users
 	for user in user_list:
@@ -68,13 +72,31 @@ def updatepw(user_list, pillar_file_dict):
 #prefix when entering the list of left networks on a stack update
 def delete_networks(network_list, pillar_file_dict):
 	print "You are about to delete: ", network_list
-	for user in user_list:
-		del pillar_file_dict['ipsecconf']['users'][user]
+	tmp_networks_list = pillar_file_dict['ipsecconf']['left_networks'].split(",")
+	for network in network_list:
+		try:
+			tmp_networks_list.remove(network)
+			logging.info("Deleting " + network)
+		except ValueError:
+			logging.warning("Could not find %s network in the pillar file" % network)
+			print "Cloud not find %s network in the pillar file" % network
+	pillar_file_dict['ipsecconf']['left_networks'] = ",".join(tmp_networks_list)
+	with open(PILLAR_FILE_PATH, 'w+') as outfile:
+		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
 #This method is called when the user specifies left
 #networks on a stack update
 def add_networks(network_list, pillar_file_dict):
 	print "You are about to add networks: ", network_list
+	if '' in network_list:
+		logging.info("Network list is empty..leaving it alone")
+		return
+	tmp_networks_list = pillar_file_dict['ipsecconf']['left_networks'].split(",")
+	for network in networks_list:
+		tmp_networks_list.append(network)
+		logging.info("Adding " + network)
+	with open(PILLAR_FILE_PATH, 'w+') as outfile:
+		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
 #This method is called on stack creation. 
 #It generates the salt pillar file.
@@ -82,7 +104,7 @@ def create_pillar(user_list, networks_list):
 	print "You are about to create the pillar file"
 	pillar_file_dict = {
 		'ipsecconf': {
-			'dhcp_pool_cidr': DHCP_POOL_CIDER,
+			'dhcp_pool_cidr': DHCP_POOL_CIDR,
 			'private_key': PRIVATE_KEY,
 			'group_name': GROUP_NAME,
 			'left_networks': ','.join(networks_list),
@@ -93,8 +115,8 @@ def create_pillar(user_list, networks_list):
 		logging.info("Adding user " + user)
 		password = password_gen()
 		pillar_file_dict['ipsecconf']['users'][user] = password
-		write open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
-			outfile.write("{%(user)s: %(password)s" % {'user': user, 'password', password})
+		with open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
+			outfile.write("{%(user)s: %(password)s" % {'user': user, 'password': password})
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write(yaml.dump(pillar_file_dict, default_flow_style=False))
 
