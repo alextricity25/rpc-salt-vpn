@@ -56,13 +56,19 @@ def add_users(user_list, pillar_file_dict):
 		logging.info("User list is empty..leaving it alone")
 		return
 	print "You are about to add: ",user_list
+
 	#Do things here to pillar_file_dict to add users
 	for user in user_list:
 		logging.info("Adding user " + user)
-		pillar_file_dict['ipsecconf']['users'][user] = password_gen()
+		password = password_gen()
+		pillar_file_dict['ipsecconf']['users'][user] = password
+
 		#Writing to heat output file
 		with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+			logging.info("Writing newly added users to the heat software config output file")
 			outfile.write("{%(user)s: %(password)s}" % {'user':user,'password':password})
+
+	#Writing the newly updated pillar file dict to the pillar file
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
@@ -125,7 +131,8 @@ def create_pillar(user_list, networks_list):
 
 def clear_passwords():
 	with open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
-		outfile.write("")
+		logging.info("Clearing the user/passwords from the stack output..")
+		outfile.write("The passwords have been cleared successfully")
 		exit(0)
 
 def load_pillar():
