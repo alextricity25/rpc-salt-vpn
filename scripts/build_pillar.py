@@ -118,7 +118,7 @@ def create_pillar(user_list, networks_list):
 		logging.info("Adding user " + user)
 		password = password_gen()
 		pillar_file_dict['ipsecconf']['users'][user] = password
-		with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+		with open(USER_PASSWDS_OUTPUT_FILE, 'a') as outfile:
 			outfile.write("{%(user)s: %(password)s}" % {'user': user, 'password': password})
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write(yaml.dump(pillar_file_dict, default_flow_style=False))
