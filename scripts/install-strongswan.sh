@@ -1,3 +1,4 @@
+#!/bin/bash
 set -ex
 logdir=/var/log/salt-scripts
 prefix=${logdir}/install-strongswan
