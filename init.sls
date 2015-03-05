@@ -34,25 +34,14 @@ strongswan-pkgs:
         - require:
             - pkg: curl
 
-drop_install_file:
-    file.managed:
-        - name: /tmp/install-strongswan.sh
+#Installing strongswan 5.2.2 from source
+Run strongswan installation script:
+    cmd.script:
         - source: salt://rpc-salt-vpn/scripts/install-strongswan.sh
-        - group: root
-        - mode: 740
-        - template: jinja
-
-##Getting strongswan 5.2.2 from source
-/tmp/install-strongswan.sh:
-    cmd.run:
-        - cwd: /tmp
-        - shell: /bin/bash
         - timeout: 400
         - unless: test -x /usr/bin/ipsec
-        - creates: /tmp/install-strongswan.ran
         - require:
             - pkg: strongswan-pkgs
-            - file: /tmp/install-strongswan.sh
 
 ##Configuring ipsec.conf
 /etc/ipsec.conf:

@@ -59,7 +59,7 @@ def add_users(user_list, pillar_file_dict):
 
 	#Clearing heat output file
 	with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
-		logging.info("Clearing old users that could have been left over..preparing to add users.")
+		logging.info("Clearing the old users that could have been left over in the output file..preparing to add users.")
 		outfile.write("The information for the newly created users are: ")
 
 	#Do things here to pillar_file_dict to add users
@@ -82,10 +82,19 @@ def add_users(user_list, pillar_file_dict):
 def updatepw(user_list, pillar_file_dict):
 	print "You are about to update the password for: ",user_list
 	logging.info("You are about to update the password for user(s): %s" % user_list)
+
+	#Clearing the heat output file
+	with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+		outfile.write("The updated passwords are: ")
+
 	for user in user_list:
 		password = password_gen()
 		logging.info("Updated password for %s" % user)
 		pillar_file_dict['ipsecconf']['users'][user] = password
+
+		#Writing the updated passwords to the heat output file.
+		with open(USER_PASSWDS_OUTPUT_FILE, 'a') as outfile:
+			outfile.write("{%(user)s: %(password)s}" % {'user':user,'password':password})
 
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
