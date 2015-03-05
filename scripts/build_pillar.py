@@ -60,7 +60,7 @@ def add_users(user_list, pillar_file_dict):
 	#Clearing heat output file
 	with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
 		logging.info("Clearing old users that could have been left over..preparing to add users.")
-		outfile.write("The information for the newly created users are below:")
+		outfile.write("The information for the newly created users are: ")
 
 	#Do things here to pillar_file_dict to add users
 	for user in user_list:
@@ -117,6 +117,8 @@ def add_networks(networks_list, pillar_file_dict):
 	for network in networks_list:
 		tmp_networks_list.append(network)
 		logging.info("Adding " + network)
+	#Writing new networks to the pillar_file_dict
+	pillar_file_dict['ipsecconf']['left_networks'] = ",".join(tmp_networks_list)
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
