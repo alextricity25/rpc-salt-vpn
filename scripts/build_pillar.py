@@ -124,8 +124,11 @@ def add_networks(networks_list, pillar_file_dict):
 		return
 	tmp_networks_list = pillar_file_dict['ipsecconf']['left_networks'].split(",")
 	for network in networks_list:
-		tmp_networks_list.append(network)
-		logging.info("Adding " + network)
+		if network not in tmp_networks_list:
+			tmp_networks_list.append(network)
+			logging.info("Adding " + network)
+		else:
+			logging.info("Network %s is already in the pillar file.")
 	#Writing new networks to the pillar_file_dict
 	pillar_file_dict['ipsecconf']['left_networks'] = ",".join(tmp_networks_list)
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
@@ -168,6 +171,24 @@ def load_pillar():
 
 def password_gen():
 	return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+
+
+#This method builds the string necessary for a nuetron port-update. It is
+#then written to it's appropriate heat output file. 
+def build_neutron_port_command(pillar_file_dict):
+	command = "neutron port-update " + CONCENTRATOR_PORT_ID + " --allowed-address-pairs list=true type=dict ip_address=" + DHCP_POOL_CIDR + " "
+	print command
+
+	#Writing first part of the command to the heat output file
+	with open(NEUTRON_COMMAND_OUTPUT_FILE, 'w') as outfile:
+		logging.info("Writing the first part of the neutron command into heat output file..")
+		outfile.write(command)
+
+	tmp_network_list = pillar_file_dict['ipsecconf']['left_networks'].split(",")
+	for network in tmp_network_list:
+		with open(NEUTRON_COMMAND_OUTPUT_FILE, 'a') as outfile:
+			logging.info("Adding %s network into neutron port-update heat output file..")
+			outfile.write("ip_address=" + network + " ")
 
 #Main Method
 def main():
@@ -241,7 +262,7 @@ def main():
 	if is_updatepw and is_update:
 		updatepw(list_of_users_list, pillar_file_dict)
 
-
+	build_neutron_port_command(pillar_file_dict)
 
 #Calling main
 main()
