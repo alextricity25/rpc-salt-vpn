@@ -181,7 +181,9 @@ def password_gen():
 
 #This method builds the string necessary for a nuetron port-update. It is
 #then written to it's appropriate heat output file. 
-def build_neutron_port_command(pillar_file_dict):
+def build_neutron_port_command():
+	#Loading the pillar file
+	pillar_file_dict = load_pillar()
 	command = "neutron port-update " + CONCENTRATOR_PORT_ID + " --allowed-address-pairs list=true type=dict ip_address=" + DHCP_POOL_CIDR + " "
 	print command
 
@@ -274,7 +276,8 @@ def main():
 	if is_updatepw and is_update:
 		updatepw(list_of_users_list, pillar_file_dict)
 
-	build_neutron_port_command(pillar_file_dict)
+	#Loading (re)built pillar file
+	build_neutron_port_command()
 
 #Calling main
 main()
