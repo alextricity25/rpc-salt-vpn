@@ -57,6 +57,11 @@ def add_users(user_list, pillar_file_dict):
 		return
 	print "You are about to add: ",user_list
 
+	#Clearing heat output file
+	with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+		logging.info("Clearing old users that could have been left over..preparing to add users.")
+		outfile.write("The information for the newly created users are below:")
+
 	#Do things here to pillar_file_dict to add users
 	for user in user_list:
 		logging.info("Adding user " + user)
@@ -64,7 +69,7 @@ def add_users(user_list, pillar_file_dict):
 		pillar_file_dict['ipsecconf']['users'][user] = password
 
 		#Writing to heat output file
-		with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+		with open(USER_PASSWDS_OUTPUT_FILE, 'a') as outfile:
 			logging.info("Writing newly added users to the heat software config output file")
 			outfile.write("{%(user)s: %(password)s}" % {'user':user,'password':password})
 
@@ -76,6 +81,14 @@ def add_users(user_list, pillar_file_dict):
 #prefix when entering the user list on a stack update
 def updatepw(user_list, pillar_file_dict):
 	print "You are about to update the password for: ",user_list
+	logging.info("You are about to update the password for user(s): %s" % user_list)
+	for user in user_list:
+		password = password_gen()
+		logging.info("Updated password for %s" % user)
+		pillar_file_dict['ipsecconf']['users'][user] = password
+
+	with open(PILLAR_FILE_PATH, 'w+') as outfile:
+		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
 #This method is called when the user specifies the "delete:"
 #prefix when entering the list of left networks on a stack update
@@ -95,9 +108,9 @@ def delete_networks(network_list, pillar_file_dict):
 
 #This method is called when the user specifies left
 #networks on a stack update
-def add_networks(network_list, pillar_file_dict):
-	print "You are about to add networks: ", network_list
-	if '' in network_list:
+def add_networks(networks_list, pillar_file_dict):
+	print "You are about to add networks: ", networks_list
+	if '' in networks_list:
 		logging.info("Network list is empty..leaving it alone")
 		return
 	tmp_networks_list = pillar_file_dict['ipsecconf']['left_networks'].split(",")
@@ -214,7 +227,7 @@ def main():
 		add_users(list_of_users_list, pillar_file_dict)
 
 	##Update passwords of users when specified
-	if is_updatepw:
+	if is_updatepw and is_update:
 		updatepw(list_of_users_list, pillar_file_dict)
 
 
