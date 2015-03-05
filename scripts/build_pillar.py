@@ -89,12 +89,18 @@ def updatepw(user_list, pillar_file_dict):
 
 	for user in user_list:
 		password = password_gen()
-		logging.info("Updated password for %s" % user)
-		pillar_file_dict['ipsecconf']['users'][user] = password
 
-		#Writing the updated passwords to the heat output file.
-		with open(USER_PASSWDS_OUTPUT_FILE, 'a') as outfile:
-			outfile.write("{%(user)s: %(password)s}" % {'user':user,'password':password})
+		#Checking to see if user exists
+		if user in pillar_file_dict['ipsecconf']['users'].keys():
+			logging.info("Updated password for %s" % user)
+			pillar_file_dict['ipsecconf']['users'][user] = password
+			#Writing the updated passwords to the heat output file.
+			with open(USER_PASSWDS_OUTPUT_FILE, 'a') as outfile:
+				outfile.write("{%(user)s: %(password)s}" % {'user':user,'password':password})
+		else:
+			logging.warning("User %s does not exist" % user)
+
+
 
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
@@ -199,6 +205,12 @@ def main():
 	left_networks_list = LEFT_NETWORKS.split(",")
 	list_of_users_list = LIST_OF_USERS.split(",")
 
+	#Trim leading or trailing whitespace
+	for i in range(len(left_networks_list)):
+		left_networks_list[i] = left_networks_list[i].strip()
+	for i in range(len(list_of_users_list)):
+		list_of_users_list[i] = list_of_users_list[i].strip()
+
 	##Used to determine if the user is going to delete a network or vpn user.
 	if "delete:" in list_of_users_list[0]:
 		is_delete_users = True
@@ -255,7 +267,7 @@ def main():
 	##Add user or network when specified
 	if is_update and not is_delete_networks:
 		add_networks(left_networks_list, pillar_file_dict)
-	if is_update and not is_delete_users:
+	if is_update and not is_delete_users and not is_updatepw:
 		add_users(list_of_users_list, pillar_file_dict)
 
 	##Update passwords of users when specified
