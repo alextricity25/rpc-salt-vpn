@@ -14,7 +14,7 @@ import yaml
 logging.basicConfig(filename="/var/log/heat-deployments/build_pillar_script.log", level=logging.DEBUG)
 
 #Argument checks
-if len(sys.argv) != 11: 
+if len(sys.argv) != 13: 
 	logging.error("Invalid number of arguments. Check the invocation in the heat template.")
 	exit(1)
 
@@ -30,6 +30,8 @@ DEPLOY_ACTION = sys.argv[7]
 USER_PASSWDS_OUTPUT_FILE = sys.argv[8]
 NEUTRON_COMMAND_OUTPUT_FILE = sys.argv[9]
 PILLAR_FILE_PATH = sys.argv[10]
+ROUTER_UUID = sys.argv[11]
+GROUP_NAME_OUTPUT_FILE = sys.argv[12]
 
 
 #Methods
@@ -147,11 +149,14 @@ def add_networks(networks_list, pillar_file_dict):
 #It generates the salt pillar file.
 def create_pillar(user_list, networks_list):
 	print "You are about to create the pillar file"
+	#The VPN group name, which is the GROUP_NAME prefix plus the first 11
+	#characters of the neutron router UUID
+	vpn_group = GROUP_NAME + "-" + ROUTER_UUID[0:11]
 	pillar_file_dict = {
 		'ipsecconf': {
 			'dhcp_pool_cidr': DHCP_POOL_CIDR,
 			'private_key': PRIVATE_KEY,
-			'group_name': GROUP_NAME,
+			'group_name': vpn_group,
 			'left_networks': ','.join(networks_list),
 			'users': {}
 		}
@@ -164,6 +169,10 @@ def create_pillar(user_list, networks_list):
 			outfile.write("{%(user)s: %(password)s}" % {'user': user, 'password': password})
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write(yaml.dump(pillar_file_dict, default_flow_style=False))
+
+	#Write out VPN group name to heat output file
+	with open(GROUP_NAME_OUTPUT_FILE, 'w') as outfile:
+		outfile.write(vpn_group)
 
 def clear_passwords():
 	with open(USER_PASSWDS_OUTPUT_FILE, 'w+') as outfile:
