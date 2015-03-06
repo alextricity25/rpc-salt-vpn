@@ -52,7 +52,7 @@ def delete_users(user_list, pillar_file_dict):
 
 	#Clearing the users/passwords from the heat output file.
 	with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
-		outfile.writeI("The users and passwords are no longer available!")
+		outfile.write("The users and passwords are no longer available!")
 
 
 #This method is called if the user specifies a list
