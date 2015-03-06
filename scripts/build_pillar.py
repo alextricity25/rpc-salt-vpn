@@ -48,6 +48,10 @@ def delete_users(user_list, pillar_file_dict):
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
+	#Clearing the users/passwords from the heat output file.
+	with open(USER_PASSWDS_OUTPUT_FILE, 'w') as outfile:
+		outfile.writeI("The users and passwords are no longer available!")
+
 
 #This method is called if the user specifies a list
 #of users on a stack update.
@@ -100,8 +104,7 @@ def updatepw(user_list, pillar_file_dict):
 		else:
 			logging.warning("User %s does not exist" % user)
 
-
-
+	#Writing the newly updated pilar file dict to the pillar file
 	with open(PILLAR_FILE_PATH, 'w+') as outfile:
 		outfile.write( yaml.dump(pillar_file_dict, default_flow_style=False))
 
